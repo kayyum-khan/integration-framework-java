@@ -198,25 +198,44 @@ public interface PlatformService {
     boolean deleteDistributionList(String id);
 
     /**
-     * Notify platform that there is new data available for some users.
+     * Notify platform that there is new data available for some users, but do not send push notifications to devices.
      *
-     * @param usersIds  list of user ids for whom there is new data available
-     * @param condition  only notify users matching this context condition, {@code null} to don't filter on context
+     * @param userIds   list of user ids for whom there is new data available
      */
-    void newDataAvailableForUsers(List<String> usersIds, ObjectNode condition);
+    void newDataAvailableForUsers(List<String> userIds);
 
     /**
-     * Notify platform that there is new data available for some launchables.
+     * Notify platform that there is new data available for some users, and send push notifications to affected devices.
+     *
+     * @param userIds   list of user ids for whom there is new data available
+     * @param condition  only notify devices matching this context condition, {@code null} to not filter on context
+     */
+    void newDataAvailableForUsers(List<String> userIds, ObjectNode condition);
+
+    /**
+     * Notify platform that there is new data available for some launchables, but do not send push notifications to devices.
      *
      * @param launchableIds  list of launchable ids for which there is new data available
-     * @param condition  only notify users matching this context condition, {@code null} to don't filter on context
+     */
+    void newDataAvailableForLaunchables(List<String> launchableIds);
+
+    /**
+     * Notify platform that there is new data available for some launchables, and send push notifications to affected devices.
+     *
+     * @param launchableIds  list of launchable ids for which there is new data available
+     * @param condition      only notify devices matching this context condition, {@code null} to not filter on context
      */
     void newDataAvailableForLaunchables(List<String> launchableIds, ObjectNode condition);
 
     /**
-     * Notify platform that there is new data available for all users.
+     * Notify platform that there is new data available for all users, but do not send push notifications to devices.
+     */
+    void newDataAvailableForAllUsers();
+
+    /**
+     * Notify platform that there is new data available for all users, and send push notifications to affected devices.
      *
-     * @param condition  only notify users matching this context condition, {@code null} to don't filter on context
+     * @param condition  only notify devices matching this context condition, {@code null} to not filter on context
      */
     void newDataAvailableForAllUsers(ObjectNode condition);
 
