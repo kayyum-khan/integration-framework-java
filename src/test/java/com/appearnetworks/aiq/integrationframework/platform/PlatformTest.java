@@ -42,6 +42,11 @@ public class PlatformTest {
 
     @Test
     public void newDataAvailableForUsers() {
+        aiqService.newDataAvailableForUsers(Arrays.asList("user1", "user2"));
+    }
+
+    @Test
+    public void newDataAvailableForUsersUrgent() {
         aiqService.newDataAvailableForUsers(Arrays.asList("user1", "user2"), null);
     }
 
@@ -54,6 +59,11 @@ public class PlatformTest {
 
     @Test
     public void newDataAvailableForLaunchables() {
+        aiqService.newDataAvailableForLaunchables(Arrays.asList("launchable1", "launchable2"));
+    }
+
+    @Test
+    public void newDataAvailableForLaunchablesUrgent() {
         aiqService.newDataAvailableForLaunchables(Arrays.asList("launchable1", "launchable2"), null);
     }
 
@@ -66,6 +76,11 @@ public class PlatformTest {
 
     @Test
     public void newDataAvailableForAllUsers() {
+        aiqService.newDataAvailableForAllUsers();
+    }
+
+    @Test
+    public void newDataAvailableForAllUsersUrgent() {
         aiqService.newDataAvailableForAllUsers(null);
     }
 

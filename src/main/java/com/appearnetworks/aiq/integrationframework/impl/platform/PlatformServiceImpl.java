@@ -14,7 +14,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConversionException;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -181,22 +180,16 @@ public class PlatformServiceImpl implements PlatformService {
     }
 
     @Override
-    public void newDataAvailableForAllUsers(ObjectNode condition) {
+    public void newDataAvailableForUsers(List<String> userIds) {
         ObjectNode request = mapper.createObjectNode();
-        request.put("all", true);
-        if (condition != null) {
-            request.put("condition", condition);
+        ArrayNode users = mapper.createArrayNode();
+        for (String userId : userIds) {
+            users.add(userId);
         }
+        request.put("users", users);
+        request.put("urgent", false);
 
-        try {
-            postForAccept(fetchIntegrationLink(NEWDATAAVAILABLE), request);
-        } catch (UnauthorizedException e) {
-            if (fetchPlatformUserToken() != null)
-                postForAccept(fetchIntegrationLink(NEWDATAAVAILABLE), request);
-            else
-                throw e;
-        }
-
+        makeNewDataAvailableRequest(request);
     }
 
     @Override
@@ -207,18 +200,25 @@ public class PlatformServiceImpl implements PlatformService {
             users.add(userId);
         }
         request.put("users", users);
+        request.put("urgent", true);
         if (condition != null) {
             request.put("condition", condition);
         }
 
-        try {
-            postForAccept(fetchIntegrationLink(NEWDATAAVAILABLE), request);
-        } catch (UnauthorizedException e) {
-            if (fetchPlatformUserToken() != null)
-                postForAccept(fetchIntegrationLink(NEWDATAAVAILABLE), request);
-            else
-                throw e;
+        makeNewDataAvailableRequest(request);
+    }
+
+    @Override
+    public void newDataAvailableForLaunchables(List<String> launchableIds) {
+        ObjectNode request = mapper.createObjectNode();
+        ArrayNode launchables = mapper.createArrayNode();
+        for (String launchableId : launchableIds) {
+            launchables.add(launchableId);
         }
+        request.put("launchables", launchables);
+        request.put("urgent", false);
+
+        makeNewDataAvailableRequest(request);
     }
 
     @Override
@@ -229,10 +229,36 @@ public class PlatformServiceImpl implements PlatformService {
             launchables.add(launchableId);
         }
         request.put("launchables", launchables);
+        request.put("urgent", true);
         if (condition != null) {
             request.put("condition", condition);
         }
 
+        makeNewDataAvailableRequest(request);
+    }
+
+    @Override
+    public void newDataAvailableForAllUsers() {
+        ObjectNode request = mapper.createObjectNode();
+        request.put("all", true);
+        request.put("urgent", false);
+
+        makeNewDataAvailableRequest(request);
+    }
+
+    @Override
+    public void newDataAvailableForAllUsers(ObjectNode condition) {
+        ObjectNode request = mapper.createObjectNode();
+        request.put("all", true);
+        request.put("urgent", true);
+        if (condition != null) {
+            request.put("condition", condition);
+        }
+
+        makeNewDataAvailableRequest(request);
+    }
+
+    private void makeNewDataAvailableRequest(ObjectNode request) {
         try {
             postForAccept(fetchIntegrationLink(NEWDATAAVAILABLE), request);
         } catch (UnauthorizedException e) {
@@ -394,7 +420,7 @@ public class PlatformServiceImpl implements PlatformService {
         FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
         formHttpMessageConverter.addPartConverter(new AttachmentHttpMessageConverter());
         formHttpMessageConverter.addPartConverter(new MappingJackson2HttpMessageConverter());
-        restTemplate.setMessageConverters(Arrays.<HttpMessageConverter<?>>asList(
+        restTemplate.setMessageConverters(Arrays.asList(
                 formHttpMessageConverter,
                 new MappingJackson2HttpMessageConverter()
         ));
