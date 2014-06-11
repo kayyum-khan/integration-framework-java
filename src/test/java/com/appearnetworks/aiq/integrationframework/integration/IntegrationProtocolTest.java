@@ -94,24 +94,24 @@ public class IntegrationProtocolTest {
     }
 
     @Test
-    public void listDocuments() throws Exception {
-        when(integrationAdapterMock.findByUserAndDevice(anyString(), anyString())).thenReturn(Arrays.asList(
+    public void listDocumentsWithExtraParameter() throws Exception {
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(Arrays.asList(
                 new DocumentReference("one", "MyDoc", 1),
                 new DocumentReference("two", "MyDoc", 2)));
 
-        mockMvc.perform(get("/aiq/integration/datasync").param("userId", USER_ID).param("deviceId", DEVICE_ID)
+        mockMvc.perform(get("/aiq/integration/datasync").param("userId", USER_ID).param("deviceId", "TheDevice")
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.documentReferences[0]._id").value("one"))
                 .andExpect(jsonPath("$.documentReferences[1]._id").value("two"));
 
-        verify(integrationAdapterMock).findByUserAndDevice(USER_ID, DEVICE_ID);
+        verify(integrationAdapterMock).findByUser(USER_ID);
     }
 
     @Test
-    public void listDocumentsNoDevice() throws Exception {
-        when(integrationAdapterMock.findByUserAndDevice(anyString(), anyString())).thenReturn(Arrays.asList(
+    public void listDocuments() throws Exception {
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(Arrays.asList(
                 new DocumentReference("one", "MyDoc", 1),
                 new DocumentReference("two", "MyDoc", 2)));
 
@@ -122,12 +122,12 @@ public class IntegrationProtocolTest {
                 .andExpect(jsonPath("$.documentReferences[0]._id").value("one"))
                 .andExpect(jsonPath("$.documentReferences[1]._id").value("two"));
 
-        verify(integrationAdapterMock).findByUserAndDevice(USER_ID, null);
+        verify(integrationAdapterMock).findByUser(USER_ID);
     }
 
     @Test
-    public void listDocumentsNoDeviceNorUser() throws Exception {
-        when(integrationAdapterMock.findByUserAndDevice(anyString(), anyString())).thenReturn(Arrays.asList(
+    public void listDocumentsNoUser() throws Exception {
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(Arrays.asList(
                 new DocumentReference("one", "MyDoc", 1)));
 
         mockMvc.perform(get("/aiq/integration/datasync")
@@ -136,7 +136,7 @@ public class IntegrationProtocolTest {
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.documentReferences[0]._id").value("one"));
 
-        verify(integrationAdapterMock).findByUserAndDevice(null, null);
+        verify(integrationAdapterMock).findByUser(null);
     }
 
     @Test

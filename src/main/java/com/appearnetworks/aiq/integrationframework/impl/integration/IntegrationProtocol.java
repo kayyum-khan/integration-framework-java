@@ -37,10 +37,8 @@ public class IntegrationProtocol {
     @RequestMapping(value = "/datasync", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
-    ListDocumentsResponse listDocuments(
-            @RequestParam(value = "userId", required = false) String userId,
-            @RequestParam(value = "deviceId", required = false) String deviceId) {
-        return new ListDocumentsResponse(integrationAdapter.findByUserAndDevice(userId, deviceId));
+    ListDocumentsResponse listDocuments(@RequestParam(value = "userId", required = false) String userId) {
+        return new ListDocumentsResponse(integrationAdapter.findByUser(userId));
     }
 
     @RequestMapping(value = "/datasync/{docType}/{docId:.*}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

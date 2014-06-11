@@ -20,7 +20,7 @@ import java.util.List;
  */
 public abstract class IntegrationAdapterBase implements IntegrationAdapter {
 
-    public List<DocumentReference> findByUserAndDevice(String userId, String deviceId) {
+    public List<DocumentReference> findByUser(String userId) {
         return Collections.emptyList();
     }
 

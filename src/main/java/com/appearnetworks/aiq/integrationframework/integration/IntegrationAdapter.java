@@ -16,26 +16,23 @@ import java.util.List;
  */
 public interface IntegrationAdapter {
     /**
-     * Find the set of document that a given user on a given device should have.
+     * Find the set of document that a given user should have.
      * <p/>
-     * {@code deviceId} may be {@code null}, in that case the documents that the given user should have regardless of
-     * device should be returned. {@code userId} may be {@code null}, in that case the documents that
-     * all users in the organization should have should be returned. If the {@code userId} parameter is {@code null},
-     * {@code deviceId} will also be {@code null}.
+     * {@code userId} may be {@code null}, in that case the documents that
+     * all users in the organization should have should be returned.
      * <p/>
      * If the user is unrecognized, the response must be as if the {@code userId} parameter is {@code null}.
      *
      * @param userId   the user, may be {@code null}
-     * @param deviceId the device that the user is using, may be {@code null}
      * @return document references defining what documents the user should have, possibly empty but never {@code null}
      */
-    List<DocumentReference> findByUserAndDevice(String userId, String deviceId);
+    List<DocumentReference> findByUser(String userId);
 
     /**
      * Retrieve a single document.
      * <p/>
      * Do not restrict or filter access through this method, the platform will only retrieve the documents returned by
-     * {@link #findByUserAndDevice}.
+     * {@link #findByUser}.
      * <p/>
      * The platform may cache documents internally to avoid making multiple calls to this method for the same document.
      * <p/>

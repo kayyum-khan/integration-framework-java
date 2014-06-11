@@ -27,8 +27,8 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public List<DocumentReference> findByUserAndDevice(String userId, String deviceId) {
-        LOG.info("listDocuments: userId=" + userId + ", deviceId=" + deviceId);
+    public List<DocumentReference> findByUser(String userId) {
+        LOG.info("listDocuments: userId=" + userId);
         return Arrays.asList(
                 new DocumentReference("one", "MyDoc", 1),
                 new DocumentReference("two", "MyDoc", 2),
