@@ -2,13 +2,13 @@ package com.appearnetworks.aiq.integrationframework.integration;
 
 /**
  * Thrown by the Integration Adapter to indicate that it is temporary unable to perform the operation,
- * and that the platform should retry later.
+ * and that the server should retry later.
  */
 public class UnavailableException extends Exception {
     private final int retryAfterSeconds;
 
     /**
-     * Unavailable for an unspecified time, the platform will use its default retry delay.
+     * Unavailable for an unspecified time, the server will use its default retry delay.
      */
     public UnavailableException() {
         this(0);

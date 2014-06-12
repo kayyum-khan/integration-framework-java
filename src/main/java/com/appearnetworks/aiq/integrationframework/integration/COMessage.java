@@ -34,7 +34,7 @@ public class COMessage {
     /**
      * @return  id of the user who created this message
      *
-     * @see com.appearnetworks.aiq.integrationframework.platform.PlatformService#fetchUser(String)
+     * @see com.appearnetworks.aiq.integrationframework.server.IntegrationService#fetchUser(String)
      */
     public String getUserId() {
         return userId;

@@ -1,6 +1,6 @@
 package com.appearnetworks.aiq.integrationframework.integration;
 
-import com.appearnetworks.aiq.integrationframework.impl.PlatformRegistrator;
+import com.appearnetworks.aiq.integrationframework.impl.ServerRegistrator;
 import com.appearnetworks.aiq.integrationframework.impl.integration.IntegrationProtocol;
 import com.appearnetworks.aiq.integrationframework.impl.integration.LogoutRequest;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -78,7 +78,7 @@ public class IntegrationProtocolTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private PlatformRegistrator platformRegistrator;
+    private ServerRegistrator serverRegistrator;
 
     @Mock
     private IntegrationAdapter integrationAdapterMock;
@@ -86,7 +86,7 @@ public class IntegrationProtocolTest {
     @Before
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
-                .defaultRequest(get("/").header("Authorization", authHeaderValue(PLATFORM_INTEGRATION_USER, platformRegistrator.getPassword())))
+                .defaultRequest(get("/").header("Authorization", authHeaderValue(PLATFORM_INTEGRATION_USER, serverRegistrator.getPassword())))
                 .build();
 
         MockitoAnnotations.initMocks(this);

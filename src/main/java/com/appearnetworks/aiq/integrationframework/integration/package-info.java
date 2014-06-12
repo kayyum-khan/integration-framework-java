@@ -1,5 +1,5 @@
 /**
- * Communication from the platform to the integration adapter.
+ * Communication from the server to the integration adapter.
  * <p>
  * The framework expect exactly one bean implementing {@link com.appearnetworks.aiq.integrationframework.integration.IntegrationAdapter}
  * in the Spring application context. This is done easiest my annotating your implementation class with

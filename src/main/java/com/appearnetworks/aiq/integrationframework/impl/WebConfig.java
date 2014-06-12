@@ -20,7 +20,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     private static final String REALM = "AIQ8IntegrationAdapter";
 
     @Autowired
-    private PlatformRegistrator platformRegistrator;
+    private ServerRegistrator serverRegistrator;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -40,7 +40,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     private boolean isAuthorized(HttpServletRequest request) {
         // no authentication if password is not set
-        if (platformRegistrator.getPassword() == null)
+        if (serverRegistrator.getPassword() == null)
             return true;
 
         String authHeader = request.getHeader("Authorization");
@@ -49,7 +49,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         }
         String encodedValue = authHeader.split(" ")[1];
         String decodedValue = new String(Base64.decodeBase64(encodedValue));
-        String authPair = PLATFORM_INTEGRATION_USER + ":" + platformRegistrator.getPassword();
+        String authPair = PLATFORM_INTEGRATION_USER + ":" + serverRegistrator.getPassword();
         return decodedValue.equals(authPair);
     }
 

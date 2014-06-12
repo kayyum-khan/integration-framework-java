@@ -31,10 +31,10 @@ public interface IntegrationAdapter {
     /**
      * Retrieve a single document.
      * <p/>
-     * Do not restrict or filter access through this method, the platform will only retrieve the documents returned by
+     * Do not restrict or filter access through this method, the server will only retrieve the documents returned by
      * {@link #findByUser}.
      * <p/>
-     * The platform may cache documents internally to avoid making multiple calls to this method for the same document.
+     * The server may cache documents internally to avoid making multiple calls to this method for the same document.
      * <p/>
      * You can either return an {@link com.fasterxml.jackson.databind.node.ObjectNode} or a subclass of {@link BusinessDocument}.
      *
@@ -47,10 +47,10 @@ public interface IntegrationAdapter {
     /**
      * Retrieve an attachment.
      * <p/>
-     * Do not restrict or filter access through this method, the platform will only retrieve the attachments returned by
+     * Do not restrict or filter access through this method, the server will only retrieve the attachments returned by
      * {@link #retrieveDocument}.
      * <p/>
-     * The platform may cache attachments internally to avoid making multiple calls to this method for the same attachment.
+     * The server may cache attachments internally to avoid making multiple calls to this method for the same attachment.
      *
      * @param docType document type
      * @param docId   document id
@@ -180,7 +180,7 @@ public interface IntegrationAdapter {
     void removeClientSession(String userId, String deviceId, String sessionId) throws UpdateException;
 
     /**
-     * Called by the platform when an administrative user logs out.
+     * Called by the server when an administrative user logs out.
      * The integration adapter is expected to invalidate the session of the user.
      *
      * @param userId user id
@@ -189,13 +189,13 @@ public interface IntegrationAdapter {
 
 
     /**
-     * Called by the platform to deliver a Client Originated message.
+     * Called by the server to deliver a Client Originated message.
      *
      * @param destination message destination
      * @param message     the message
      * @param attachments attachments, use {@link org.apache.commons.fileupload.FileItemStream#getFieldName()} to retrieve attachment name
      * @return response to send back to originating user/device, or {@code null} to not send any response
-     * @throws UnavailableException if temporary unable to process the message, and the platform should retry later
+     * @throws UnavailableException if temporary unable to process the message, and the server should retry later
      */
     COMessageResponse processMessage(String destination, COMessage message, FileItemIterator attachments)
             throws UnavailableException, IOException, FileUploadException;
