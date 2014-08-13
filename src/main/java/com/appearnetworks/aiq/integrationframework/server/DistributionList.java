@@ -29,6 +29,16 @@ public class DistributionList {
         this._id = _id;
     }
 
+    /**
+     * Distribution lists can only be created on the server and this constructor should only be used for unit testing.
+     */
+    public DistributionList(Collection<String> users, String _id, long _rev, DistributionListLinks links) {
+        this.users = users;
+        this._id = _id;
+        this._rev = _rev;
+        this.links = links;
+    }
+
     public Collection<String> getUsers() {
         return users;
     }

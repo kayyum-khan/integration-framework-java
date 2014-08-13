@@ -1,5 +1,6 @@
 package com.appearnetworks.aiq.integrationframework.server;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -20,8 +21,14 @@ public class EnrichedBackendMessage extends BackendMessage {
     private EnrichedBackendMessageLinks links;
     private List<BackendMessageReadReport> readBy;
 
+    /**
+     * Needed for Jackson deserialization, do not use.
+     */
     public EnrichedBackendMessage() { }
 
+    /**
+     * Enriched backend messages can only be created on the server and this constructor should only be used for unit testing.
+     */
     public EnrichedBackendMessage(String type, Date activeFrom, int timeToLive, boolean urgent, String _launchable, ObjectNode payload, BackendMessageNotification notification, String _id, long created, EnrichedBackendMessageLinks links, List<BackendMessageReadReport> readBy) {
         super(type, activeFrom, timeToLive, urgent, _launchable, payload, notification);
         this._id = _id;
@@ -55,6 +62,7 @@ public class EnrichedBackendMessage extends BackendMessage {
     /**
      * @return the link to this specific backend message
      */
+    @JsonIgnore
     public URI getURL() {
         return URI.create(links.getSelf());
     }
@@ -66,6 +74,7 @@ public class EnrichedBackendMessage extends BackendMessage {
         return readBy;
     }
 
+    @JsonIgnore
     @Override
     public BackendMessageRecipients getRecipients() {
         throw new UnsupportedOperationException("read recipients data from fetched backend message");

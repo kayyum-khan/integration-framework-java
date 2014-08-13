@@ -9,7 +9,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class EnrichedBackendMessageLinks {
     private String self;
 
+    /**
+     * Needed for Jackson deserialization, do not use.
+     */
     public EnrichedBackendMessageLinks() { }
+
+    /**
+     * Used for testing.
+     */
+    EnrichedBackendMessageLinks(String self) {
+        this.self = self;
+    }
 
     public String getSelf() {
         return self;

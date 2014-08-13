@@ -1,5 +1,6 @@
 package com.appearnetworks.aiq.integrationframework.server;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -47,6 +48,20 @@ public class ClientSession {
         this.context = context;
         this._id = _id;
         this._rev = _rev;
+    }
+
+    /**
+     * Used for testing.
+     */
+    ClientSession(User user, String deviceId, Date created, Date lastAccessed, ObjectNode context, String _id, long _rev, ClientSessionLinks links) {
+        this.user = user;
+        this.deviceId = deviceId;
+        this.created = created;
+        this.lastAccessed = lastAccessed;
+        this.context = context;
+        this._id = _id;
+        this._rev = _rev;
+        this.links = links;
     }
 
     /**
@@ -108,6 +123,7 @@ public class ClientSession {
     /**
      * @return the link to this specific session
      */
+    @JsonIgnore
     public URI getURL() {
         return URI.create(links.getSelf());
     }

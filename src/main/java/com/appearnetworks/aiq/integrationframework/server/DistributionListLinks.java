@@ -9,7 +9,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class DistributionListLinks {
     private String self;
 
+    /**
+     * Needed for Jackson deserialization, do not use.
+     */
     public DistributionListLinks() { }
+
+    /**
+     * Used for testing.
+     */
+    DistributionListLinks(String self) {
+        this.self = self;
+    }
 
     public String getSelf() {
         return self;

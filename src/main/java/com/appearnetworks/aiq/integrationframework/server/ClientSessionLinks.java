@@ -9,7 +9,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ClientSessionLinks {
     private String self;
 
+    /**
+     * Needed for Jackson deserialization, do not use.
+     */
     public ClientSessionLinks() { }
+
+    /**
+     * Used for testing.
+     */
+    ClientSessionLinks(String self) {
+        this.self = self;
+    }
 
     public String getSelf() {
         return self;
