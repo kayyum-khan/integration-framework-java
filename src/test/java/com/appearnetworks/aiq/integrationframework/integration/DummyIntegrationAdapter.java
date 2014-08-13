@@ -116,7 +116,7 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     }
 
     @Override
-    public ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) throws UpdateException {
+    public ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
         try {
             LOG.info("createClientSession: userId=" + userId + " deviceId=" + deviceId + " sessionId=" + sessionId + "\n" + mapper.writeValueAsString(clientSession));
         } catch (IOException e) {
@@ -126,7 +126,7 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     }
 
     @Override
-    public void updateClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) throws UpdateException {
+    public void updateClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
         try {
             LOG.info("updateClientSession: userId=" + userId + " deviceId=" + deviceId + " sessionId=" + sessionId + "\n" + mapper.writeValueAsString(clientSession));
         } catch (IOException e) {
@@ -135,7 +135,7 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     }
 
     @Override
-    public void removeClientSession(String userId, String deviceId, String sessionId) throws UpdateException {
+    public void removeClientSession(String userId, String deviceId, String sessionId) {
         LOG.info("deleteClientSession: userId=" + userId + " deviceId=" + deviceId + " sessionId=" + sessionId);
     }
 

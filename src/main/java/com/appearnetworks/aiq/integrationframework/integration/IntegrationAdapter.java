@@ -154,9 +154,8 @@ public interface IntegrationAdapter {
      * @param sessionId     session id
      * @param clientSession the client session
      * @return initial backend context, or {@code null} to not set any initial backend context
-     * @throws UpdateException can be thrown if update fails
      */
-    ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) throws UpdateException;
+    ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession);
 
     /**
      * A client session is being updated.
@@ -165,9 +164,8 @@ public interface IntegrationAdapter {
      * @param deviceId      The device that the user is using
      * @param sessionId     session id
      * @param clientSession the client session
-     * @throws UpdateException can be thrown if update fails
      */
-    void updateClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) throws UpdateException;
+    void updateClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession);
 
     /**
      * A client session is being removed.
@@ -175,9 +173,8 @@ public interface IntegrationAdapter {
      * @param userId    The user who the session belongs to
      * @param deviceId  The device that the user is using
      * @param sessionId session id
-     * @throws UpdateException can be thrown if update fails
      */
-    void removeClientSession(String userId, String deviceId, String sessionId) throws UpdateException;
+    void removeClientSession(String userId, String deviceId, String sessionId);
 
     /**
      * Called by the server when an administrative user logs out.
