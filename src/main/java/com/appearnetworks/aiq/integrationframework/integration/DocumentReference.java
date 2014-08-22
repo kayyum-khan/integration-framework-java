@@ -6,7 +6,7 @@ package com.appearnetworks.aiq.integrationframework.integration;
  * Document id and type can only contain characters {@code a-zA-Z0-9.~-_} (corresponds to the unreserved characters of an URI
  * according to <a href="http://tools.ietf.org/html/rfc3986#section-2.3">RFC-3986</a>) and must be between 1 and 250 characters long.
  */
-public final class DocumentReference {
+public class DocumentReference {
     public final String _id;
     public final String _type;
     public final long _rev;
@@ -30,7 +30,7 @@ public final class DocumentReference {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -44,7 +44,7 @@ public final class DocumentReference {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = _id != null ? _id.hashCode() : 0;
         result = 31 * result + (_type != null ? _type.hashCode() : 0);
         result = 31 * result + (int) (_rev ^ (_rev >>> 32));
