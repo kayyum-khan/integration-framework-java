@@ -12,7 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 /**
@@ -27,7 +27,7 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public List<DocumentReference> findByUser(String userId) {
+    public Collection<DocumentReference> findByUser(String userId) {
         LOG.info("listDocuments: userId=" + userId);
         return Arrays.asList(
                 new DocumentReference("one", "MyDoc", 1),

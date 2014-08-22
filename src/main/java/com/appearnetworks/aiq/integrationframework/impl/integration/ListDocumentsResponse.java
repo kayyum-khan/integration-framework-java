@@ -2,12 +2,12 @@ package com.appearnetworks.aiq.integrationframework.impl.integration;
 
 import com.appearnetworks.aiq.integrationframework.integration.DocumentReference;
 
-import java.util.List;
+import java.util.Collection;
 
 public final class ListDocumentsResponse {
-  public final List<DocumentReference> documentReferences;
+  public final Collection<DocumentReference> documentReferences;
 
-  public ListDocumentsResponse(List<DocumentReference> documentReferences) {
+  public ListDocumentsResponse(Collection<DocumentReference> documentReferences) {
     this.documentReferences = documentReferences;
   }
 }

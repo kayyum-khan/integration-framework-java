@@ -8,8 +8,8 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Base implementation of {@link IntegrationAdapter}.
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public abstract class IntegrationAdapterBase implements IntegrationAdapter {
 
-    public List<DocumentReference> findByUser(String userId) {
+    public Collection<DocumentReference> findByUser(String userId) {
         return Collections.emptyList();
     }
 

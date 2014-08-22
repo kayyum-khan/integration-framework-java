@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * The behaviour of an integration adapter.
@@ -26,7 +26,7 @@ public interface IntegrationAdapter {
      * @param userId   the user, may be {@code null}
      * @return document references defining what documents the user should have, possibly empty but never {@code null}
      */
-    List<DocumentReference> findByUser(String userId);
+    Collection<DocumentReference> findByUser(String userId);
 
     /**
      * Retrieve a single document.
