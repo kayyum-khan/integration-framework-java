@@ -15,7 +15,7 @@ public class COMessageResponse {
     /**
      * @param success     if the message was successfully processed
      * @param payload     response payload, will be serialized to JSON, see {@link com.fasterxml.jackson.databind.node.ObjectNode}, or {@code null} for no payload
-     * @param timeToLive  how long the response to the device will be valid, in seconds. Specify 0 to use default.
+     * @param timeToLive  how long the response to the device will be valid, in seconds. Specify 0 to use default which is one week.
      * @param urgent      if the response is urgent and should be delivered to the originating device as soon as possible
      * @param notificationMessage     if the user should be notified with a message when the response reaches his/her device, {@code null} otherwise
      * @param notificationSound       if the user should be notified with a sound when the response reaches his/her device
