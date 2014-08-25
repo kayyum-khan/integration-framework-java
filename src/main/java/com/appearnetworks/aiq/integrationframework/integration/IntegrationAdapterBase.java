@@ -20,7 +20,7 @@ import java.util.Collections;
  */
 public abstract class IntegrationAdapterBase implements IntegrationAdapter {
 
-    public Collection<? extends DocumentReference> findByUser(String userId) {
+    public Collection<DocumentReference> findByUser(String userId) {
         return Collections.emptyList();
     }
 

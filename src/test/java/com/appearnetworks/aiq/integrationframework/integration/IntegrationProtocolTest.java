@@ -18,8 +18,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -97,13 +95,9 @@ public class IntegrationProtocolTest {
 
     @Test
     public void listDocumentsWithExtraParameter() throws Exception {
-        when(integrationAdapterMock.findByUser(anyString())).thenAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return Arrays.asList(new DocumentReference("one", "MyDoc", 1),
-                                     new DocumentReference("two", "MyDoc", 2));
-            }
-        });
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(
+                Arrays.asList(new DocumentReference("one", "MyDoc", 1),
+                              new DocumentReference("two", "MyDoc", 2)));
 
         mockMvc.perform(get("/aiq/integration/datasync").param("userId", USER_ID).param("deviceId", "TheDevice")
                 .accept(APPLICATION_JSON))
@@ -117,13 +111,9 @@ public class IntegrationProtocolTest {
 
     @Test
     public void listDocuments() throws Exception {
-        when(integrationAdapterMock.findByUser(anyString())).thenAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return Arrays.asList(new DocumentReference("one", "MyDoc", 1),
-                                     new DocumentReference("two", "MyDoc", 2));
-            }
-        });
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(
+                Arrays.asList(new DocumentReference("one", "MyDoc", 1),
+                              new DocumentReference("two", "MyDoc", 2)));
 
         mockMvc.perform(get("/aiq/integration/datasync").param("userId", USER_ID)
                 .accept(APPLICATION_JSON))
@@ -137,12 +127,8 @@ public class IntegrationProtocolTest {
 
     @Test
     public void listDocumentsNoUser() throws Exception {
-        when(integrationAdapterMock.findByUser(anyString())).thenAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return Arrays.asList(new DocumentReference("one", "MyDoc", 1));
-            }
-        });
+        when(integrationAdapterMock.findByUser(anyString())).thenReturn(
+                Arrays.asList(new DocumentReference("one", "MyDoc", 1)));
 
         mockMvc.perform(get("/aiq/integration/datasync")
                 .accept(APPLICATION_JSON))

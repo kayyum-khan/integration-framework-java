@@ -26,7 +26,7 @@ public interface IntegrationAdapter {
      * @param userId   the user, may be {@code null}
      * @return document references defining what documents the user should have, possibly empty but never {@code null}
      */
-    Collection<? extends DocumentReference> findByUser(String userId);
+    Collection<DocumentReference> findByUser(String userId);
 
     /**
      * Retrieve a single document.
