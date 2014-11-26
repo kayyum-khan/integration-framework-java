@@ -56,6 +56,9 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Value("${aiq.orgname}")
     private String aiqOrgName;
 
+    @Value("${aiq.solutionid}")
+    private String aiqSolutionId;
+
     @Value("${aiq.username}")
     private String aiqUsername;
 
@@ -109,7 +112,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        String body = "username=" + aiqUsername + "&password=" + aiqPassword + "&grant_type=password&scope=" + aiqScope;
+        String body = "username=" + aiqUsername + "&password=" + aiqPassword + "&grant_type=password&scope=" + aiqScope +"&x-solutionId=" + aiqSolutionId;
         HttpEntity<String> request = new HttpEntity<>(body, headers);
 
         try {
