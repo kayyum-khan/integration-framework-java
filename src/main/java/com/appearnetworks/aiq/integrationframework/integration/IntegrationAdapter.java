@@ -153,9 +153,8 @@ public interface IntegrationAdapter {
      * @param deviceId      The device that the user is using
      * @param sessionId     session id
      * @param clientSession the client session
-     * @return initial backend context, or {@code null} to not set any initial backend context
      */
-    ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession);
+    void createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession);
 
     /**
      * A client session is being updated.

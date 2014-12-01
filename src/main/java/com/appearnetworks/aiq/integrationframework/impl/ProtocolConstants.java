@@ -6,6 +6,7 @@ public final class ProtocolConstants {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String IF_MATCH = "If-Match";
     public static final String RETRY_AFTER = "Retry-After";
+    public static final String SLUG = "Slug";
 
     // Custom HTTP headers
     public static final String X_AIQ_DOC_REV = "X-AIQ-DocRev";
@@ -22,9 +23,6 @@ public final class ProtocolConstants {
 
     // HTTP header value
     public static final String TRUE = "true";
-
-    // Document types
-    public static final String CLIENT_SESSION_DOC_TYPE = "_clientsession";
 
     // Multipart names
     public static final String PAYLOAD = "_payload";

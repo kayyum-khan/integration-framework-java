@@ -60,8 +60,8 @@ public abstract class IntegrationAdapterBase implements IntegrationAdapter {
         throw new UpdateException(HttpStatus.NOT_FOUND);
     }
 
-    public ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
-        return null;
+    public void createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
+        // do nothing
     }
 
     public void updateClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
