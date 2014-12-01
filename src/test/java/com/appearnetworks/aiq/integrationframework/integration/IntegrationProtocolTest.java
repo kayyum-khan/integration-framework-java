@@ -460,48 +460,22 @@ public class IntegrationProtocolTest {
     }
 
     @Test
-    public void createClientSessionObjectNode() throws Exception {
-        ObjectNode initialBackendContext = mapper.createObjectNode();
-        initialBackendContext.put("com.example.provider", "test");
-
-        when(integrationAdapterMock.createClientSession(anyString(), anyString(), anyString(), any(ObjectNode.class))).thenReturn(initialBackendContext);
-
+    public void createClientSession() throws Exception {
         ObjectNode doc = mapper.createObjectNode();
         doc.put("_id", DOC_ID);
-        doc.put("_type", CLIENT_SESSION_DOC_TYPE);
-        doc.put("foo", "bar");
+        doc.put("userId", USER_ID);
+        doc.put("deviceId", DEVICE_ID);
+        doc.put("created", System.currentTimeMillis());
+        doc.put("extra", mapper.createObjectNode());
+        doc.put("clientContext", mapper.createObjectNode());
 
-        mockMvc.perform(put("/aiq/integration/datasync/" + CLIENT_SESSION_DOC_TYPE + "/" + DOC_ID)
+        mockMvc.perform(post("/aiq/integration/clientsessions")
+                .header(SLUG, DOC_ID)
                 .header(X_AIQ_USER_ID, USER_ID)
                 .header(X_AIQ_DEVICE_ID, DEVICE_ID)
                 .contentType(APPLICATION_JSON)
                 .content(mapper.writeValueAsString(doc)))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("ETag", "\"" + 1 + "\""))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(mapper.writeValueAsString(initialBackendContext)));
-
-        verify(integrationAdapterMock).createClientSession(USER_ID, DEVICE_ID, DOC_ID, doc);
-    }
-
-    @Test
-    public void createClientSessionNull() throws Exception {
-        when(integrationAdapterMock.createClientSession(anyString(), anyString(), anyString(), any(ObjectNode.class))).thenReturn(null);
-
-        ObjectNode doc = mapper.createObjectNode();
-        doc.put("_id", DOC_ID);
-        doc.put("_type", CLIENT_SESSION_DOC_TYPE);
-        doc.put("foo", "bar");
-
-        mockMvc.perform(put("/aiq/integration/datasync/" + CLIENT_SESSION_DOC_TYPE + "/" + DOC_ID)
-                .header(X_AIQ_USER_ID, USER_ID)
-                .header(X_AIQ_DEVICE_ID, DEVICE_ID)
-                .contentType(APPLICATION_JSON)
-                .content(mapper.writeValueAsString(doc)))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("ETag", "\"" + 1 + "\""))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string("{}"));
+                .andExpect(status().isCreated());
 
         verify(integrationAdapterMock).createClientSession(USER_ID, DEVICE_ID, DOC_ID, doc);
     }
@@ -510,31 +484,27 @@ public class IntegrationProtocolTest {
     public void updateClientSession() throws Exception {
         ObjectNode doc = mapper.createObjectNode();
         doc.put("_id", DOC_ID);
-        doc.put("_type", CLIENT_SESSION_DOC_TYPE);
-        doc.put("foo", "bar");
+        doc.put("userId", USER_ID);
+        doc.put("deviceId", DEVICE_ID);
+        doc.put("created", System.currentTimeMillis());
+        doc.put("extra", mapper.createObjectNode());
+        doc.put("clientContext", mapper.createObjectNode());
 
-        long initialRevision = 1;
-
-        mockMvc.perform(put("/aiq/integration/datasync/" + CLIENT_SESSION_DOC_TYPE + "/" + DOC_ID)
+        mockMvc.perform(put("/aiq/integration/clientsessions/" + DOC_ID)
                 .header(X_AIQ_USER_ID, USER_ID)
                 .header(X_AIQ_DEVICE_ID, DEVICE_ID)
-                .header("If-Match", makeETag(initialRevision))
                 .contentType(APPLICATION_JSON)
                 .content(mapper.writeValueAsString(doc)))
-                .andExpect(status().isNoContent())
-                .andExpect(header().string("ETag", "\"" + (initialRevision + 1) + "\""));
+                .andExpect(status().isNoContent());
 
         verify(integrationAdapterMock).updateClientSession(USER_ID, DEVICE_ID, DOC_ID, doc);
     }
 
     @Test
     public void removeClientSession() throws Exception {
-        long initialRevision = 1;
-
-        mockMvc.perform(delete("/aiq/integration/datasync/" + CLIENT_SESSION_DOC_TYPE + "/" + DOC_ID)
+        mockMvc.perform(delete("/aiq/integration/clientsessions/" + DOC_ID)
                 .header(X_AIQ_USER_ID, USER_ID)
-                .header(X_AIQ_DEVICE_ID, DEVICE_ID)
-                .header("If-Match", makeETag(initialRevision)))
+                .header(X_AIQ_DEVICE_ID, DEVICE_ID))
                 .andExpect(status().isNoContent());
 
         verify(integrationAdapterMock).removeClientSession(USER_ID, DEVICE_ID, DOC_ID);

@@ -116,13 +116,12 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     }
 
     @Override
-    public ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
+    public void createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
         try {
             LOG.info("createClientSession: userId=" + userId + " deviceId=" + deviceId + " sessionId=" + sessionId + "\n" + mapper.writeValueAsString(clientSession));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
