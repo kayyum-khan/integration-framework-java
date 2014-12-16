@@ -7,7 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
@@ -25,7 +30,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -94,11 +104,11 @@ public class IntegrationServiceImpl implements IntegrationService {
         return (String) cache.get(ACCESS_TOKEN_CACHE_KEY);
     }
 
-    public URI fetchIntegrationLink(String link) {
+    public String fetchIntegrationLink(String link) {
         if (!cache.containsKey(INTEGRATION_LINK_CACHE_KEY + link)) {
             fetchAccessToken();
         }
-        return (URI) cache.get(INTEGRATION_LINK_CACHE_KEY + link);
+        return ((URI) cache.get(INTEGRATION_LINK_CACHE_KEY + link)).toString();
     }
 
     public URI fetchRootLink(String link) {
@@ -302,13 +312,38 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public List<EnrichedBackendMessage> fetchBackendMessages() {
+        return fetchBackendMessages(true);
+    }
+
+    @Override
+    public List<EnrichedBackendMessage> fetchBackendMessages(boolean withPayload) {
         EnrichedBackendMessage[] backendMessages;
 
         try {
-            backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES), EnrichedBackendMessage[].class);
+            backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES) + "?withPayload={withPayload}",
+                    EnrichedBackendMessage[].class, withPayload);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES), EnrichedBackendMessage[].class);
+                backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES) + "?withPayload={withPayload}",
+                        EnrichedBackendMessage[].class, withPayload);
+            else
+                throw e;
+        }
+
+        return Arrays.asList(backendMessages);
+    }
+
+    @Override
+    public List<EnrichedBackendMessage> fetchBackendMessages(String messageType, boolean withPayload) {
+        EnrichedBackendMessage[] backendMessages;
+
+        try {
+            backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES) + "?type={messageType}&withPayload={withPayload}",
+                    EnrichedBackendMessage[].class, messageType, withPayload);
+        } catch (UnauthorizedException e) {
+            if (fetchUserToken() != null)
+                backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES) + "?type={messageType}&withPayload={withPayload}",
+                        EnrichedBackendMessage[].class, messageType, withPayload);
             else
                 throw e;
         }
@@ -613,9 +648,9 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public <T> T getForObject(URI url, Class<T> type) {
+    public <T> T getForObject(String url, Class<T> type, Object... urlVariables) {
         try {
-            return getRestTemplateWithAuth().getForObject(url, type);
+            return getRestTemplateWithAuth().getForObject(url, type, urlVariables);
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode()) {
                 case UNAUTHORIZED:
@@ -654,7 +689,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public <T> T postForObjectOrNull(URI url, JsonNode requestEntity, Class<T> type) {
+    public <T> T postForObjectOrNull(String url, JsonNode requestEntity, Class<T> type) {
         try {
             return getRestTemplateWithAuth().postForObject(url, requestEntity, type);
         } catch (HttpStatusCodeException e) {
@@ -676,7 +711,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public void postForAccept(URI url, JsonNode requestEntity) {
+    public void postForAccept(String url, JsonNode requestEntity) {
         try {
             getRestTemplateWithAuth().postForEntity(url, requestEntity, Void.class);
         } catch (HttpStatusCodeException e) {

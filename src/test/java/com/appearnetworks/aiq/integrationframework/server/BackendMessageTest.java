@@ -14,6 +14,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -24,6 +25,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(locations = {"/META-INF/testApplicationContext.xml"})
 public class BackendMessageTest {
     private static final String PHOTO = "photo";
+    private static final String MY_TYPE = "MyType";
     private static byte[] photo = new byte[]{0, 1, 2, 6, 76};
     private static byte[] logo = new byte[]{11, 56, 45, 43, 17};
 
@@ -41,13 +43,8 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void getAllMessages() {
-       assertNotNull("Service returned null for get all messages", aiqService.fetchBackendMessages());
-    }
-
-    @Test
-    public void createAndGetAndDeleteMessage() {
-        BackendMessage message = new BackendMessage("MyType", new Date(), 3600, false, null, payload, null);
+    public void createAndGetAndListAndDeleteMessage() {
+        BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
@@ -63,6 +60,26 @@ public class BackendMessageTest {
         assertNotNull(createdMessage.getCreated());
         assertEquals(messageId, createdMessage.get_id());
 
+        List<EnrichedBackendMessage> messages1 = aiqService.fetchBackendMessages(MY_TYPE, true);
+        assertTrue(messages1.size() > 1);
+        assertNotNull(messages1.get(0).getPayload());
+
+        List<EnrichedBackendMessage> messages2 = aiqService.fetchBackendMessages(MY_TYPE, false);
+        assertTrue(messages2.size() > 1);
+        assertNull(messages2.get(0).getPayload());
+
+        List<EnrichedBackendMessage> messages3 = aiqService.fetchBackendMessages(true);
+        assertTrue(messages3.size() > 1);
+        assertNotNull(messages3.get(0).getPayload());
+
+        List<EnrichedBackendMessage> messages4 = aiqService.fetchBackendMessages(false);
+        assertTrue(messages4.size() > 1);
+        assertNull(messages4.get(0).getPayload());
+
+        List<EnrichedBackendMessage> messages5 = aiqService.fetchBackendMessages();
+        assertTrue(messages5.size() > 1);
+        assertNotNull(messages5.get(0).getPayload());
+
         assertTrue(aiqService.deleteBackendMessage(messageId));
 
         assertNull(aiqService.fetchBackendMessage(createdMessage.get_id()));
@@ -72,7 +89,7 @@ public class BackendMessageTest {
 
     @Test
     public void createMessageWithNullActiveFrom() {
-        BackendMessage message = new BackendMessage("MyType", null, 3600, false, null, payload, null);
+        BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
@@ -84,7 +101,7 @@ public class BackendMessageTest {
     public void createMessageWithRecipients() {
         User user = aiqService.fetchUsers().get(0);
 
-        BackendMessage message = new BackendMessage("MyType", null, 3600, false, null, payload,
+        BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload,
                 new BackendMessageRecipients(Arrays.asList(user.get_id()), null),
                 null);
         String messageId = aiqService.createBackendMessage(message);
@@ -96,7 +113,7 @@ public class BackendMessageTest {
 
     @Test
     public void createMessageWithAttachments() {
-        BackendMessage message = new BackendMessage("MyType", null, 3600, false, null, payload, null, null);
+        BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload, null, null);
         String messageId = aiqService.createBackendMessage(message, Arrays.asList(
                 new MessageAttachment(PHOTO, MediaType.IMAGE_JPEG, photo),
                 new MessageAttachment(null, MediaType.IMAGE_PNG, logo)
@@ -109,7 +126,7 @@ public class BackendMessageTest {
 
     @Test
     public void createAndGetAndUpdateAndDeleteMessage() {
-        BackendMessage message = new BackendMessage("MyType", new Date(), 3600, false, null, payload, null);
+        BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
@@ -128,7 +145,7 @@ public class BackendMessageTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void validateBackendMessageNullPayLoad(){
-        new BackendMessage("MyType", new Date(), 3600, false, null, null, null);
+        new BackendMessage(MY_TYPE, new Date(), 3600, false, null, null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,12 +160,12 @@ public class BackendMessageTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void validateBackendMessageInvalidTTL(){
-        new BackendMessage("MyType", new Date(), -1, false, null, payload, null);
+        new BackendMessage(MY_TYPE, new Date(), -1, false, null, payload, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void validateBackendMessageNullNotificationMessage(){
-        new BackendMessage("MyType", new Date(), 3600, false, null, payload,
+        new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload,
                 new BackendMessageNotification(false, false, null, null));
     }
 
@@ -176,7 +193,7 @@ public class BackendMessageTest {
         assertEquals(dl2Id, dl2.get_id());
         assertEquals(0, dl2.getUsers().size());
 
-        BackendMessage message = new BackendMessage("MyType", new Date(), 3600, false, null, payload,
+        BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload,
                 new BackendMessageRecipients(null, Arrays.asList(dl1Id, dl2Id)), null);
         String messageId = aiqService.createBackendMessage(message);
         assertNotNull(messageId);

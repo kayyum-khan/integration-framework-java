@@ -96,7 +96,7 @@ public interface IntegrationService {
     String createBackendMessage(BackendMessage message, Collection<MessageAttachment> attachments);
 
     /**
-     * Fetch a specific backend message by id along with this message read reports.
+     * Fetch a specific backend message by id along with read reports and payload.
      * The returned message will not contain recipients data.
      *
      * @param id  backend message id, from {@link com.appearnetworks.aiq.integrationframework.server.EnrichedBackendMessage#get_id()}
@@ -126,12 +126,30 @@ public interface IntegrationService {
     boolean deleteBackendMessage(String id);
 
     /**
-     * Fetch list of all backend messages available on the server however the read reports are not fetched for any of the message.
-     * The returned messages will not contain recipients data.
+     * Fetch list of all backend messages available on the server, including payload (but not including read reports nor recipients data).
      *
-     * @return List of all messages available on the server, never {@code null}
+     * @return List of, never {@code null}
      */
     List<EnrichedBackendMessage> fetchBackendMessages();
+
+    /**
+     * Fetch list of all backend messages available on the server (not including read reports nor recipients data).
+     *
+     * @param withPayload  whether to include the payload
+     *
+     * @return List of messages, never {@code null}
+     */
+    List<EnrichedBackendMessage> fetchBackendMessages(boolean withPayload);
+
+    /**
+     * Fetch list of backend messages of a specified type available on the server (not including read reports nor recipients data).
+     *
+     * @param messageType  the type of message to fetch
+     * @param withPayload  whether to include the payload
+     *
+     * @return List of messages, never {@code null}
+     */
+    List<EnrichedBackendMessage> fetchBackendMessages(String messageType, boolean withPayload);
 
     /**
      * Fetch list of all distribution lists.
