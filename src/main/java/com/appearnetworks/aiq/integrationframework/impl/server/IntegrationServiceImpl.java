@@ -81,7 +81,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     public void fetchOrgRootMenu() {
         try {
-            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(aiqUrl + "?orgName=" + aiqOrgName, OrgRootMenu.class);
+            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(
+                    UriComponentsBuilder.fromUriString(aiqUrl).queryParam("orgName", aiqOrgName).build().toUri(), OrgRootMenu.class);
 
             URI baseURL = URI.create(aiqUrl);
 
