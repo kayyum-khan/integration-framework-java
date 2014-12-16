@@ -26,11 +26,15 @@ public class ServerRegistrator {
     private SecureRandom random = new SecureRandom();
 
     @PostConstruct
-    public void register() {
+    public void postConstruct() {
         if (!integrationUrl.isEmpty()) {
-            password = generateRandomPassword();
-            integrationService.register(integrationUrl, password);
+            register(integrationUrl);
         }
+    }
+
+    public void register(String url) {
+        password = generateRandomPassword();
+        integrationService.register(url, password);
     }
 
     private String generateRandomPassword() {
@@ -38,10 +42,16 @@ public class ServerRegistrator {
     }
 
     @PreDestroy
-    public void unregister() {
+    public void preDestroy() {
         if (!integrationUrl.isEmpty()) {
-            integrationService.unregister();
+            unregister();
+        } else {
+            password = null;
         }
+    }
+
+    public void unregister() {
+        integrationService.unregister();
         password = null;
     }
 
