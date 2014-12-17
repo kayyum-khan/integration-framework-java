@@ -124,8 +124,14 @@ public class IntegrationServiceImpl implements IntegrationService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        String body = "username=" + aiqUsername + "&password=" + aiqPassword + "&grant_type=password&scope=" + aiqScope +"&x-solution=" + aiqSolution;
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("username", aiqUsername);
+        body.add("password", aiqPassword);
+        body.add("grant_type", "password");
+        body.add("scope", aiqScope);
+        body.add("x-solution", aiqSolution);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
         try {
             URI baseURL = fetchRootLink("token");
