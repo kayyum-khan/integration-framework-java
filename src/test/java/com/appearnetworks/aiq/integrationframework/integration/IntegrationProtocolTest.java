@@ -41,10 +41,6 @@ import java.util.Date;
 import static com.appearnetworks.aiq.integrationframework.impl.ProtocolConstants.*;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -67,7 +63,7 @@ public class IntegrationProtocolTest {
     private static final String PHOTO = "photo";
     private static final String LOGO = "logo";
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private IntegrationProtocol controller;

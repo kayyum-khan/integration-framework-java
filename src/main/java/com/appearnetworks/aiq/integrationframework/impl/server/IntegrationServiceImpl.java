@@ -7,7 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
@@ -22,10 +27,16 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -48,7 +59,7 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     private final Map<String, Object> cache = new ConcurrentHashMap<>();
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Value("${aiq.url}")
     private String aiqUrl;
@@ -70,7 +81,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     public void fetchOrgRootMenu() {
         try {
-            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(aiqUrl + "?orgName=" + aiqOrgName, OrgRootMenu.class);
+            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(
+                    UriComponentsBuilder.fromUriString(aiqUrl).queryParam("orgName", aiqOrgName).build().toUri(), OrgRootMenu.class);
 
             URI baseURL = URI.create(aiqUrl);
 
@@ -138,7 +150,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         cache.remove(ACCESS_TOKEN_CACHE_KEY);
     }
 
-    public String authorizationValue(String token) {
+    public static String authorizationValue(String token) {
         return "Bearer " + token;
     }
 
@@ -161,10 +173,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public ClientSession fetchClientSession(String id) {
         try {
-            return getForObjectOrNull(fetchIntegrationLink(CLIENTSESSIONS) + "/" + id, ClientSession.class);
+            return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri(), ClientSession.class);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return getForObjectOrNull(fetchIntegrationLink(CLIENTSESSIONS) + "/" + id, ClientSession.class);
+                return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri(), ClientSession.class);
             else
                 throw e;
         }
@@ -173,10 +185,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public boolean terminateClientSession(String id) {
         try {
-            return delete(fetchIntegrationLink(CLIENTSESSIONS) + "/" + id);
+            return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return delete(fetchIntegrationLink(CLIENTSESSIONS) + "/" + id);
+                return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri());
             else
                 throw e;
         }
@@ -275,12 +287,20 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public boolean updateBackendContext(String userId, String deviceId, String provider, ObjectNode data) {
         try {
-            return doPut(fetchIntegrationLink(BACKENDCONTEXT) +
-                    "?userId={userId}&deviceId={deviceId}&provider={provider}", data, userId, deviceId, provider);
+            return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
+                    .queryParam("userId", userId)
+                    .queryParam("deviceId", deviceId)
+                    .queryParam("provider", provider)
+                    .build().toUri(),
+                    data);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return doPut(fetchIntegrationLink(BACKENDCONTEXT) +
-                        "?userId={userId}&deviceId={deviceId}&provider={provider}", data, userId, deviceId, provider);
+                return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
+                        .queryParam("userId", userId)
+                        .queryParam("deviceId", deviceId)
+                        .queryParam("provider", provider)
+                        .build().toUri(),
+                        data);
             else
                 throw e;
         }
@@ -289,12 +309,18 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public boolean removeBackendContext(String userId, String deviceId, String provider) {
         try {
-            return delete(fetchIntegrationLink(BACKENDCONTEXT) +
-                    "?userId={userId}&deviceId={deviceId}&provider={provider}", userId, deviceId, provider);
+            return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
+                                .queryParam("userId", userId)
+                                .queryParam("deviceId", deviceId)
+                                .queryParam("provider", provider)
+                                .build().toUri());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return delete(fetchIntegrationLink(BACKENDCONTEXT) +
-                        "?userId={userId}&deviceId={deviceId}&provider={provider}", userId, deviceId, provider);
+                return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
+                                    .queryParam("userId", userId)
+                                    .queryParam("deviceId", deviceId)
+                                    .queryParam("provider", provider)
+                                    .build().toUri());
             else
                 throw e;
         }
@@ -302,13 +328,52 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public List<EnrichedBackendMessage> fetchBackendMessages() {
+        return fetchBackendMessages(true);
+    }
+
+    @Override
+    public List<EnrichedBackendMessage> fetchBackendMessages(boolean withPayload) {
         EnrichedBackendMessage[] backendMessages;
 
         try {
-            backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES), EnrichedBackendMessage[].class);
+            backendMessages = getForObject(
+                    UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES))
+                            .queryParam("withPayload", withPayload)
+                            .build().toUri(),
+                    EnrichedBackendMessage[].class);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                backendMessages = getForObject(fetchIntegrationLink(BACKENDMESSAGES), EnrichedBackendMessage[].class);
+                backendMessages = getForObject(
+                        UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES))
+                                .queryParam("withPayload", withPayload)
+                                .build().toUri(),
+                        EnrichedBackendMessage[].class);
+            else
+                throw e;
+        }
+
+        return Arrays.asList(backendMessages);
+    }
+
+    @Override
+    public List<EnrichedBackendMessage> fetchBackendMessages(String messageType, boolean withPayload) {
+        EnrichedBackendMessage[] backendMessages;
+
+        try {
+            backendMessages = getForObject(
+                    UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES))
+                            .queryParam("type", messageType)
+                            .queryParam("withPayload", withPayload)
+                            .build().toUri(),
+                    EnrichedBackendMessage[].class);
+        } catch (UnauthorizedException e) {
+            if (fetchUserToken() != null)
+                backendMessages = getForObject(
+                        UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES))
+                                .queryParam("type", messageType)
+                                .queryParam("withPayload", withPayload)
+                                .build().toUri(),
+                        EnrichedBackendMessage[].class);
             else
                 throw e;
         }
@@ -331,10 +396,12 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public DistributionList fetchDistributionList(String id) {
         try {
-            return getForObjectOrNull(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id, DistributionList.class);
+            return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(),
+                    DistributionList.class);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return getForObjectOrNull(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id, DistributionList.class);
+                return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(),
+                        DistributionList.class);
             else
                 throw e;
         }
@@ -353,10 +420,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     private String _createDistributionList(String id, Collection<String> users) {
         ObjectNode request = mapper.valueToTree(new DistributionList(users, id));
         try {
-            return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS).toString(), request, ObjectNode.class).getBody());
+            return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS), request, ObjectNode.class).getBody());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS).toString(), request, ObjectNode.class).getBody());
+                return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS), request, ObjectNode.class).getBody());
             else
                 throw e;
         }
@@ -366,10 +433,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     public boolean updateDistributionList(String id, Collection<String> users) {
         ObjectNode request = mapper.valueToTree(new DistributionList(users, id));
         try {
-            return doPut(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id, request);
+            return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(), request);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return doPut(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id, request);
+                return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(), request);
             else
                 throw e;
         }
@@ -378,10 +445,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public boolean deleteDistributionList(String id) {
         try {
-            return delete(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id);
+            return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return delete(fetchIntegrationLink(DISTRIBUTIONLISTS) + "/" + id);
+                return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri());
             else
                 throw e;
         }
@@ -392,10 +459,14 @@ public class IntegrationServiceImpl implements IntegrationService {
         EnrichedBackendMessage enrichedBackendMessage;
 
         try {
-            enrichedBackendMessage = getForObjectOrNull(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id, EnrichedBackendMessage.class);
+            enrichedBackendMessage = getForObjectOrNull(
+                    UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri(),
+                    EnrichedBackendMessage.class);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                enrichedBackendMessage = getForObjectOrNull(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id, EnrichedBackendMessage.class);
+                enrichedBackendMessage = getForObjectOrNull(
+                        UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri(),
+                        EnrichedBackendMessage.class);
             else
                 throw e;
         }
@@ -408,10 +479,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     public String createBackendMessage(BackendMessage message) {
         ObjectNode request = mapper.valueToTree(message);
         try {
-            return extractEntityId(postForEntity(fetchIntegrationLink(BACKENDMESSAGES).toString(), request, ObjectNode.class).getBody());
+            return extractEntityId(postForEntity(fetchIntegrationLink(BACKENDMESSAGES), request, ObjectNode.class).getBody());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return extractEntityId(postForEntity(fetchIntegrationLink(BACKENDMESSAGES).toString(), request, ObjectNode.class).getBody());
+                return extractEntityId(postForEntity(fetchIntegrationLink(BACKENDMESSAGES), request, ObjectNode.class).getBody());
             else
                 throw e;
         }
@@ -474,10 +545,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public boolean deleteBackendMessage(String id) {
         try {
-            return delete(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id);
+            return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return delete(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id);
+                return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri());
             else
                 throw e;
         }
@@ -488,10 +559,10 @@ public class IntegrationServiceImpl implements IntegrationService {
         ObjectNode request = mapper.valueToTree(messageUpdate);
 
         try {
-            return postForEntity(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id, request, Void.class) != null;
+            return postForEntity(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri(), request, Void.class) != null;
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return postForEntity(fetchIntegrationLink(BACKENDMESSAGES) + "/" + id, request, Void.class) != null;
+                return postForEntity(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri(), request, Void.class) != null;
             else
                 throw e;
         }
@@ -532,10 +603,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public User fetchUser(String id) {
         try {
-            return getForObjectOrNull(fetchIntegrationLink(USERS) + "/" + id, User.class);
+            return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(USERS)).pathSegment(id).build().toUri(), User.class);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                return getForObjectOrNull(fetchIntegrationLink(USERS) + "/" + id, User.class);
+                return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(USERS)).pathSegment(id).build().toUri(), User.class);
             else
                 throw e;
         }
@@ -544,10 +615,10 @@ public class IntegrationServiceImpl implements IntegrationService {
     public void register(String integrationURL, String integrationPassword) {
         ObjectNode request = mapper.valueToTree(new RegisterAdapterRequest(integrationURL, integrationPassword));
         try {
-            doPut(fetchIntegrationLink(ADAPTER).toString(), request);
+            doPut(fetchIntegrationLink(ADAPTER), request);
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                doPut(fetchIntegrationLink(ADAPTER).toString(), request);
+                doPut(fetchIntegrationLink(ADAPTER), request);
             else
                 throw e;
         }
@@ -555,10 +626,10 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     public void unregister() {
         try {
-            delete(fetchIntegrationLink(ADAPTER).toString());
+            delete(fetchIntegrationLink(ADAPTER));
         } catch (UnauthorizedException e) {
             if (fetchUserToken() != null)
-                delete(fetchIntegrationLink(ADAPTER).toString());
+                delete(fetchIntegrationLink(ADAPTER));
             else
                 throw e;
         }
@@ -568,7 +639,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         return doc.get("_id").textValue();
     }
 
-    public <T> ResponseEntity<T> postForEntity(String url, Object request, Class<T> type) {
+    public <T> ResponseEntity<T> postForEntity(URI url, Object request, Class<T> type) {
         try {
             return getRestTemplateWithAuth().postForEntity(url, request, type);
         } catch (HttpStatusCodeException e) {
@@ -590,9 +661,9 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public boolean doPut(String uri, Object data, Object... parameters) {
+    public boolean doPut(URI url, Object data) {
         try {
-            getRestTemplateWithAuth().put(uri, data, parameters);
+            getRestTemplateWithAuth().put(url, data);
             return true;
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode()) {
@@ -632,7 +703,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public <T> T getForObjectOrNull(String url, Class<T> type) {
+    public <T> T getForObjectOrNull(URI url, Class<T> type) {
         try {
             return getRestTemplateWithAuth().getForObject(url, type);
         } catch (HttpStatusCodeException e) {
@@ -698,9 +769,9 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
     }
 
-    public boolean delete(String url, Object... parameters) {
+    public boolean delete(URI url) {
         try {
-            getRestTemplateWithAuth().delete(url, parameters);
+            getRestTemplateWithAuth().delete(url);
             return true;
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode()) {
@@ -739,7 +810,7 @@ public class IntegrationServiceImpl implements IntegrationService {
             return new ServerException(e.getStatusCode(), e.getResponseBodyAsString());
     }
 
-    class HeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+    static class HeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
         private final String token;
 
         public HeaderHttpRequestInterceptor(String token) {
