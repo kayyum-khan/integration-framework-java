@@ -59,7 +59,7 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     private final Map<String, Object> cache = new ConcurrentHashMap<>();
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Value("${aiq.url}")
     private String aiqUrl;
@@ -150,7 +150,7 @@ public class IntegrationServiceImpl implements IntegrationService {
         cache.remove(ACCESS_TOKEN_CACHE_KEY);
     }
 
-    public String authorizationValue(String token) {
+    public static String authorizationValue(String token) {
         return "Bearer " + token;
     }
 
@@ -810,7 +810,7 @@ public class IntegrationServiceImpl implements IntegrationService {
             return new ServerException(e.getStatusCode(), e.getResponseBodyAsString());
     }
 
-    class HeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+    static class HeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
         private final String token;
 
         public HeaderHttpRequestInterceptor(String token) {

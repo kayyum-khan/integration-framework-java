@@ -12,9 +12,9 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 public class JsonTest {
     private static final String URL = "http://example.com/path";
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    private User user = new User("userid", "username", "email", "fullName", Collections.singletonMap("key", "value"), Collections.singletonList("role"));
+    private final User user = new User("userid", "username", "email", "fullName", Collections.singletonMap("key", "value"), Collections.singletonList("role"));
 
     @Test
     public void user() throws JsonProcessingException {

@@ -26,10 +26,10 @@ import static org.junit.Assert.*;
 public class BackendMessageTest {
     private static final String PHOTO = "photo";
     private static final String MY_TYPE = "MyType";
-    private static byte[] photo = new byte[]{0, 1, 2, 6, 76};
-    private static byte[] logo = new byte[]{11, 56, 45, 43, 17};
+    private static final byte[] photo = new byte[]{0, 1, 2, 6, 76};
+    private static final byte[] logo = new byte[]{11, 56, 45, 43, 17};
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private ObjectNode payload;
 

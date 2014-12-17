@@ -23,7 +23,7 @@ public class ServerRegistrator {
     @Autowired
     private IntegrationServiceImpl integrationService;
 
-    private SecureRandom random = new SecureRandom();
+    private final SecureRandom random = new SecureRandom();
 
     @PostConstruct
     public void postConstruct() {

@@ -1,6 +1,13 @@
 package com.appearnetworks.aiq.integrationframework.impl.integration;
 
-import com.appearnetworks.aiq.integrationframework.integration.*;
+import com.appearnetworks.aiq.integrationframework.integration.Attachment;
+import com.appearnetworks.aiq.integrationframework.integration.COMessage;
+import com.appearnetworks.aiq.integrationframework.integration.COMessageResponse;
+import com.appearnetworks.aiq.integrationframework.integration.DocumentAndAttachmentRevision;
+import com.appearnetworks.aiq.integrationframework.integration.DocumentReference;
+import com.appearnetworks.aiq.integrationframework.integration.IntegrationAdapter;
+import com.appearnetworks.aiq.integrationframework.integration.UnavailableException;
+import com.appearnetworks.aiq.integrationframework.integration.UpdateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -13,7 +20,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +45,7 @@ public class IntegrationProtocol {
     @Autowired
     private IntegrationAdapter integrationAdapter;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @RequestMapping(value = "/datasync", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
