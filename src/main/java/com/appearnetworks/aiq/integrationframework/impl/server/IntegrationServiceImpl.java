@@ -80,9 +80,9 @@ public class IntegrationServiceImpl implements IntegrationService {
     private String aiqScope;
 
     public void fetchOrgRootMenu() {
+        URI url = UriComponentsBuilder.fromUriString(aiqUrl).queryParam("orgName", aiqOrgName).build().toUri();
         try {
-            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(
-                    UriComponentsBuilder.fromUriString(aiqUrl).queryParam("orgName", aiqOrgName).build().toUri(), OrgRootMenu.class);
+            OrgRootMenu orgRootMenu = new RestTemplate().getForObject(url, OrgRootMenu.class);
 
             URI baseURL = URI.create(aiqUrl);
 
@@ -91,11 +91,11 @@ public class IntegrationServiceImpl implements IntegrationService {
                 cache.put(ROOT_LINK_CACHE_KEY + entry.getKey(), baseURL.resolve(entry.getValue().textValue()));
             }
         } catch (HttpStatusCodeException e) {
-            throw reportHttpError(e);
+            throw reportHttpError(url, e);
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -133,8 +133,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
+        URI baseURL = fetchRootLink("token");
         try {
-            URI baseURL = fetchRootLink("token");
             AccessToken accessToken = new RestTemplate().postForObject(baseURL, request, AccessToken.class);
 
             cache.put(ACCESS_TOKEN_CACHE_KEY, accessToken.getAccess_token());
@@ -144,11 +144,11 @@ public class IntegrationServiceImpl implements IntegrationService {
                 cache.put(INTEGRATION_LINK_CACHE_KEY + entry.getKey(), baseURL.resolve(entry.getValue().textValue()));
             }
         } catch (HttpStatusCodeException e) {
-            throw reportHttpError(e);
+            throw reportHttpError(baseURL, e);
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(baseURL, e.getMessage());
         }
     }
 
@@ -511,40 +511,41 @@ public class IntegrationServiceImpl implements IntegrationService {
             parts.add(attachment.name, attachment);
         }
 
+        URI url = fetchIntegrationLink(BACKENDMESSAGES);
         try {
-            return extractEntityId(
-                    restTemplate.postForObject(fetchIntegrationLink(BACKENDMESSAGES).toString(), parts, ObjectNode.class));
+            return extractEntityId(restTemplate.postForObject(url, parts, ObjectNode.class));
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode()) {
                 case UNAUTHORIZED:
                     invalidateUserToken();
-                    if (fetchUserToken() != null)
+                    if (fetchUserToken() != null) {
+                        URI url2 = fetchIntegrationLink(BACKENDMESSAGES);
                         try {
                             return extractEntityId(
-                                    restTemplate.postForObject(fetchIntegrationLink(BACKENDMESSAGES).toString(), parts, ObjectNode.class));
+                                    restTemplate.postForObject(url2, parts, ObjectNode.class));
                         } catch (HttpStatusCodeException e2) {
                             switch (e2.getStatusCode()) {
                                 case UNAUTHORIZED:
                                     throw new UnauthorizedException();
 
                                 default:
-                                    throw reportHttpError(e2);
+                                    throw reportHttpError(url2, e2);
                             }
                         } catch (ResourceAccessException e2) {
                             throw new ServerUnavailableException(e2.getMessage());
                         } catch (HttpMessageConversionException | RestClientException e2) {
-                            throw new ServerException(e2.getMessage());
+                            throw new ServerException(url, e2.getMessage());
                         }
-                    else
+                    } else
                         throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -658,12 +659,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -681,12 +682,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -700,12 +701,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -722,12 +723,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -744,12 +745,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -766,12 +767,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -789,12 +790,12 @@ public class IntegrationServiceImpl implements IntegrationService {
                     throw new UnauthorizedException();
 
                 default:
-                    throw reportHttpError(e);
+                    throw reportHttpError(url, e);
             }
         } catch (ResourceAccessException e) {
             throw new ServerUnavailableException(e.getMessage());
         } catch (HttpMessageConversionException | RestClientException e) {
-            throw new ServerException(e.getMessage());
+            throw new ServerException(url, e.getMessage());
         }
     }
 
@@ -809,11 +810,11 @@ public class IntegrationServiceImpl implements IntegrationService {
         return restTemplate;
     }
 
-    private RuntimeException reportHttpError(HttpStatusCodeException e) {
+    private RuntimeException reportHttpError(URI url, HttpStatusCodeException e) {
         if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE)
             return new ServerUnavailableException();
         else
-            return new ServerException(e.getStatusCode(), e.getResponseBodyAsString());
+            return new ServerException(url, e.getStatusCode(), e.getResponseBodyAsString());
     }
 
     static class HeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
