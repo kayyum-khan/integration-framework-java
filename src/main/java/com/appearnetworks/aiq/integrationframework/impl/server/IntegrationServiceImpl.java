@@ -21,6 +21,7 @@ import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -178,6 +179,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public ClientSession fetchClientSession(String id) {
+        Assert.hasLength(id, "sessionId is missing");
+
         try {
             return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri(), ClientSession.class);
         } catch (UnauthorizedException e) {
@@ -190,6 +193,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean terminateClientSession(String id) {
+        Assert.hasLength(id, "sessionId is missing");
+
         try {
             return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(CLIENTSESSIONS)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
@@ -202,6 +207,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public void newDataAvailableForUsers(List<String> userIds) {
+        Assert.notNull(userIds, "userIds is null");
+
         ObjectNode request = mapper.createObjectNode();
         ArrayNode users = mapper.createArrayNode();
         for (String userId : userIds) {
@@ -215,6 +222,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public void newDataAvailableForUsers(List<String> userIds, ObjectNode condition) {
+        Assert.notNull(userIds, "userIds is null");
+
         ObjectNode request = mapper.createObjectNode();
         ArrayNode users = mapper.createArrayNode();
         for (String userId : userIds) {
@@ -231,6 +240,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public void newDataAvailableForLaunchables(List<String> launchableIds) {
+        Assert.notNull(launchableIds, "launchableIds is null");
+
         ObjectNode request = mapper.createObjectNode();
         ArrayNode launchables = mapper.createArrayNode();
         for (String launchableId : launchableIds) {
@@ -244,6 +255,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public void newDataAvailableForLaunchables(List<String> launchableIds, ObjectNode condition) {
+        Assert.notNull(launchableIds, "launchableIds is null");
+
         ObjectNode request = mapper.createObjectNode();
         ArrayNode launchables = mapper.createArrayNode();
         for (String launchableId : launchableIds) {
@@ -292,6 +305,10 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean updateBackendContext(String userId, String deviceId, String provider, ObjectNode data) {
+        Assert.hasLength(userId, "no userId");
+        Assert.hasLength(deviceId, "no deviceId");
+        Assert.hasLength(provider, "no provider");
+
         try {
             return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
                     .queryParam("userId", userId)
@@ -314,6 +331,10 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean removeBackendContext(String userId, String deviceId, String provider) {
+        Assert.hasLength(userId, "no userId");
+        Assert.hasLength(deviceId, "no deviceId");
+        Assert.hasLength(provider, "no provider");
+
         try {
             return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDCONTEXT))
                                 .queryParam("userId", userId)
@@ -363,6 +384,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public List<EnrichedBackendMessage> fetchBackendMessages(String messageType, boolean withPayload) {
+        Assert.hasLength(messageType, "no messageType");
+
         EnrichedBackendMessage[] backendMessages;
 
         try {
@@ -401,6 +424,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public DistributionList fetchDistributionList(String id) {
+        Assert.hasLength(id, "no distributionListId");
+
         try {
             return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(),
                     DistributionList.class);
@@ -437,6 +462,9 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean updateDistributionList(String id, Collection<String> users) {
+        Assert.hasLength(id, "no distributionListId");
+        Assert.notNull(users, "users is null");
+
         ObjectNode request = mapper.valueToTree(new DistributionList(users, id));
         try {
             return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(), request);
@@ -450,6 +478,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean deleteDistributionList(String id) {
+        Assert.hasLength(id, "no distributionListId");
+
         try {
             return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
@@ -462,6 +492,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public EnrichedBackendMessage fetchBackendMessage(String id) {
+        Assert.hasLength(id, "no messageId");
+
         EnrichedBackendMessage enrichedBackendMessage;
 
         try {
@@ -551,6 +583,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean deleteBackendMessage(String id) {
+        Assert.hasLength(id, "no messageId");
+
         try {
             return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(BACKENDMESSAGES)).pathSegment(id).build().toUri());
         } catch (UnauthorizedException e) {
@@ -563,6 +597,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public boolean updateBackendMessage(String id, BackendMessageUpdate messageUpdate) {
+        Assert.hasLength(id, "no messageId");
+
         ObjectNode request = mapper.valueToTree(messageUpdate);
 
         try {
@@ -577,6 +613,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public User validateUserToken(String token) {
+        Assert.hasLength(token, "no token");
+
         ObjectNode request = mapper.valueToTree(new UserToken(token));
         AuthorizedUser authorizedUser;
 
@@ -609,6 +647,8 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     @Override
     public User fetchUser(String id) {
+        Assert.hasLength(id, "userId is missing");
+
         try {
             return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(USERS)).pathSegment(id).build().toUri(), User.class);
         } catch (UnauthorizedException e) {
