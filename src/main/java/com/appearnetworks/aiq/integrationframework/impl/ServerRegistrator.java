@@ -20,6 +20,9 @@ public class ServerRegistrator {
     @Value("${aiq.integration.url}")
     private String integrationUrl;
 
+    @Value("${aiq.integration.password}")
+    private String integrationPassword;
+
     @Autowired
     private IntegrationServiceImpl integrationService;
 
@@ -33,7 +36,7 @@ public class ServerRegistrator {
     }
 
     public void register(String url) {
-        password = generateRandomPassword();
+        password = integrationPassword.isEmpty() ? generateRandomPassword() : integrationPassword;
         integrationService.register(url, password);
     }
 
