@@ -20,7 +20,7 @@ public class ServerRegistrator {
     @Value("${aiq.integration.url}")
     private String integrationUrl;
 
-    @Value("${aiq.integration.password}")
+    @Value("${aiq.integration.password:}")
     private String integrationPassword;
 
     @Autowired
