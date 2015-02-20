@@ -7,7 +7,7 @@
 
     <groupId>com.appearnetworks.aiq</groupId>
     <artifactId>integration-framework-java</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>AIQ Integration framework</name>
