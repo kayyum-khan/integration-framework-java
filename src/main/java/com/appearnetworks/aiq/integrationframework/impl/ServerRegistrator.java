@@ -30,17 +30,18 @@ public class ServerRegistrator {
 
     @PostConstruct
     public void postConstruct() {
-        password = integrationPassword.isEmpty() ? generateRandomPassword() : integrationPassword;
+        
         if (!integrationUrl.isEmpty()) {
-            register(integrationUrl, password);
+            register(integrationUrl);
         }
     }
 
-    public void register(String url, String password) {
+    public void register(String url) {
+        password = integrationPassword.isEmpty() ? generateRandomPassword() : integrationPassword;
         integrationService.register(url, password);
     }
 
-    public String generateRandomPassword() {
+    private String generateRandomPassword() {
         return new BigInteger(130, random).toString(32);
     }
 
