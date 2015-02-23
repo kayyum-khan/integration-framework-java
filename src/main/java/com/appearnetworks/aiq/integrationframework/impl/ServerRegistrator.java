@@ -30,7 +30,6 @@ public class ServerRegistrator {
 
     @PostConstruct
     public void postConstruct() {
-        
         if (!integrationUrl.isEmpty()) {
             register(integrationUrl);
         }

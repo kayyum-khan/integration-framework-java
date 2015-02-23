@@ -168,47 +168,4 @@ public class BackendMessageTest {
         new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload,
                 new BackendMessageNotification(false, false, null, null));
     }
-
-    @Test
-    public void distributionLists() {
-        User user = aiqService.fetchUsers().get(0);
-
-        String dl1Id = aiqService.createDistributionList(Arrays.asList(user.get_id()));
-        String dl2Id = UUID.randomUUID().toString();
-        aiqService.createDistributionList(dl2Id, Collections.<String>emptyList());
-
-        boolean dl1Found = false;
-        boolean dl2Found = false;
-        for (DistributionList dl : aiqService.fetchDistributionLists()) {
-            if (dl.get_id().equals(dl1Id)) dl1Found = true;
-            if (dl.get_id().equals(dl2Id)) dl2Found = true;
-        }
-        assertTrue(dl1Found);
-        assertTrue(dl2Found);
-
-        DistributionList dl1 = aiqService.fetchDistributionList(dl1Id);
-        assertEquals(dl1Id, dl1.get_id());
-        assertEquals(1, dl1.getUsers().size());
-        DistributionList dl2 = aiqService.fetchDistributionList(dl2Id);
-        assertEquals(dl2Id, dl2.get_id());
-        assertEquals(0, dl2.getUsers().size());
-
-        BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload,
-                new BackendMessageRecipients(null, Arrays.asList(dl1Id, dl2Id)), null);
-        String messageId = aiqService.createBackendMessage(message);
-        assertNotNull(messageId);
-
-        assertTrue(aiqService.updateDistributionList(dl2Id, Arrays.asList(user.get_id())));
-        dl2 = aiqService.fetchDistributionList(dl2Id);
-        assertEquals(1, dl2.getUsers().size());
-
-        aiqService.deleteBackendMessage(messageId);
-
-        assertTrue(aiqService.deleteDistributionList(dl1Id));
-        assertTrue(aiqService.deleteDistributionList(dl2Id));
-
-        assertNull(aiqService.fetchDistributionList(dl1Id));
-        assertNull(aiqService.fetchDistributionList(dl2Id));
-    }
-
 }

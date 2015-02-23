@@ -51,7 +51,6 @@ public class IntegrationServiceImpl implements IntegrationService {
     private static final String BACKENDCONTEXT = "backendcontext";
     private static final String BACKENDMESSAGES = "backendmessages";
     private static final String VALIDATETOKEN = "validatetoken";
-    private static final String DISTRIBUTIONLISTS = "distributionlists";
     private static final String ADAPTER = "adapter";
 
     private static final String USERS = "users";
@@ -408,86 +407,6 @@ public class IntegrationServiceImpl implements IntegrationService {
         }
 
         return Arrays.asList(backendMessages);
-    }
-
-    @Override
-    public List<DistributionList> fetchDistributionLists() {
-        try {
-            return Arrays.asList(getForObject(fetchIntegrationLink(DISTRIBUTIONLISTS), DistributionList[].class));
-        } catch (UnauthorizedException e) {
-            if (fetchUserToken() != null)
-                return Arrays.asList(getForObject(fetchIntegrationLink(DISTRIBUTIONLISTS), DistributionList[].class));
-            else
-                throw e;
-        }
-    }
-
-    @Override
-    public DistributionList fetchDistributionList(String id) {
-        Assert.hasLength(id, "no distributionListId");
-
-        try {
-            return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(),
-                    DistributionList.class);
-        } catch (UnauthorizedException e) {
-            if (fetchUserToken() != null)
-                return getForObjectOrNull(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(),
-                        DistributionList.class);
-            else
-                throw e;
-        }
-    }
-
-    @Override
-    public String createDistributionList(Collection<String> users) {
-        return _createDistributionList(null, users);
-    }
-
-    @Override
-    public void createDistributionList(String id, Collection<String> users) {
-        _createDistributionList(id, users);
-    }
-
-    private String _createDistributionList(String id, Collection<String> users) {
-        ObjectNode request = mapper.valueToTree(new DistributionList(users, id));
-        try {
-            return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS), request, ObjectNode.class).getBody());
-        } catch (UnauthorizedException e) {
-            if (fetchUserToken() != null)
-                return extractEntityId(postForEntity(fetchIntegrationLink(DISTRIBUTIONLISTS), request, ObjectNode.class).getBody());
-            else
-                throw e;
-        }
-    }
-
-    @Override
-    public boolean updateDistributionList(String id, Collection<String> users) {
-        Assert.hasLength(id, "no distributionListId");
-        Assert.notNull(users, "users is null");
-
-        ObjectNode request = mapper.valueToTree(new DistributionList(users, id));
-        try {
-            return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(), request);
-        } catch (UnauthorizedException e) {
-            if (fetchUserToken() != null)
-                return doPut(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri(), request);
-            else
-                throw e;
-        }
-    }
-
-    @Override
-    public boolean deleteDistributionList(String id) {
-        Assert.hasLength(id, "no distributionListId");
-
-        try {
-            return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri());
-        } catch (UnauthorizedException e) {
-            if (fetchUserToken() != null)
-                return delete(UriComponentsBuilder.fromUri(fetchIntegrationLink(DISTRIBUTIONLISTS)).pathSegment(id).build().toUri());
-            else
-                throw e;
-        }
     }
 
     @Override
