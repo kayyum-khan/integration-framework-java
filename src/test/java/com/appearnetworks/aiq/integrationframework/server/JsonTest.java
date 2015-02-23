@@ -46,15 +46,4 @@ public class JsonTest {
                 "{\"user\":{\"_id\":\"userid\",\"username\":\"username\",\"email\":\"email\",\"fullName\":\"fullName\",\"profile\":{\"key\":\"value\"},\"roles\":[\"role\"]},\"deviceId\":\"deviceId\",\"created\":1,\"lastAccessed\":2,\"context\":{},\"_id\":\"id\",\"_rev\":17,\"links\":{\"self\":\"http://example.com/path\"}}",
                 json);
     }
-
-    @Test
-    public void distributionList() throws JsonProcessingException {
-        DistributionList distributionList = new DistributionList(Collections.singletonList("userid"), "id", 1, new DistributionListLinks(URL));
-
-        String json = mapper.writeValueAsString(distributionList);
-        assertJsonEquals(
-                "{\"users\":[\"userid\"],\"_id\":\"id\",\"_rev\":1,\"links\":{\"self\":\"http://example.com/path\"}}",
-                json);
-    }
-
 }
