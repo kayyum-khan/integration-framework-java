@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * Represents the recipients of a backend message.
  *
- * If both users are {@code null}, the message will be sent to everyone.
+ * If users are {@code null}, the message will be sent to everyone.
  *
  * @see com.appearnetworks.aiq.integrationframework.server.BackendMessage
  */
