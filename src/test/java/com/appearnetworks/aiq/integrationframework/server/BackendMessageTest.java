@@ -102,7 +102,7 @@ public class BackendMessageTest {
         User user = aiqService.fetchUsers().get(0);
 
         BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload,
-                new BackendMessageRecipients(Arrays.asList(user.get_id()), null),
+                new BackendMessageRecipients(Arrays.asList(user.get_id())),
                 null);
         String messageId = aiqService.createBackendMessage(message);
 
