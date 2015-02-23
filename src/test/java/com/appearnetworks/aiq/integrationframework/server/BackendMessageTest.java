@@ -12,10 +12,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -43,9 +41,10 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void createAndGetAndListAndDeleteMessage() {
+    public void createAndGetAndListAndDeleteMessage() throws InterruptedException {
         BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
+        Thread.sleep(1000);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
 
@@ -88,9 +87,10 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void createMessageWithNullActiveFrom() {
+    public void createMessageWithNullActiveFrom() throws InterruptedException {
         BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
+        Thread.sleep(1000);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
 
@@ -98,13 +98,14 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void createMessageWithRecipients() {
+    public void createMessageWithRecipients() throws InterruptedException {
         User user = aiqService.fetchUsers().get(0);
 
         BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload,
                 new BackendMessageRecipients(Arrays.asList(user.get_id())),
                 null);
         String messageId = aiqService.createBackendMessage(message);
+        Thread.sleep(1000);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
 
@@ -112,12 +113,13 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void createMessageWithAttachments() {
+    public void createMessageWithAttachments() throws InterruptedException {
         BackendMessage message = new BackendMessage(MY_TYPE, null, 3600, false, null, payload, null, null);
         String messageId = aiqService.createBackendMessage(message, Arrays.asList(
                 new MessageAttachment(PHOTO, MediaType.IMAGE_JPEG, photo),
                 new MessageAttachment(null, MediaType.IMAGE_PNG, logo)
         ));
+        Thread.sleep(1000);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
 
@@ -125,9 +127,10 @@ public class BackendMessageTest {
     }
 
     @Test
-    public void createAndGetAndUpdateAndDeleteMessage() {
+    public void createAndGetAndUpdateAndDeleteMessage() throws InterruptedException {
         BackendMessage message = new BackendMessage(MY_TYPE, new Date(), 3600, false, null, payload, null);
         String messageId = aiqService.createBackendMessage(message);
+        Thread.sleep(1000);
 
         EnrichedBackendMessage createdMessage = aiqService.fetchBackendMessage(messageId);
 
