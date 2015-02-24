@@ -96,7 +96,7 @@ public interface IntegrationService {
     String createBackendMessage(BackendMessage message, Collection<MessageAttachment> attachments);
 
     /**
-     * Fetch a specific backend message by id along with this message read reports.
+     * Fetch a specific backend message by id along with read reports and payload.
      * The returned message will not contain recipients data.
      *
      * @param id  backend message id, from {@link com.appearnetworks.aiq.integrationframework.server.EnrichedBackendMessage#get_id()}
@@ -126,76 +126,30 @@ public interface IntegrationService {
     boolean deleteBackendMessage(String id);
 
     /**
-     * Fetch list of all backend messages available on the server however the read reports are not fetched for any of the message.
-     * The returned messages will not contain recipients data.
+     * Fetch list of all backend messages available on the server, including payload (but not including read reports nor recipients data).
      *
-     * @return List of all messages available on the server, never {@code null}
+     * @return List of, never {@code null}
      */
     List<EnrichedBackendMessage> fetchBackendMessages();
 
     /**
-     * Fetch list of all distribution lists.
+     * Fetch list of all backend messages available on the server (not including read reports nor recipients data).
      *
-     * This will not return the content of the distribution lists, use {@link #fetchDistributionList(String)} to fetch content.
+     * @param withPayload  whether to include the payload
      *
-     * @return List of distribution lists, never {@code null}
+     * @return List of messages, never {@code null}
      */
-    List<DistributionList> fetchDistributionLists();
+    List<EnrichedBackendMessage> fetchBackendMessages(boolean withPayload);
 
     /**
-     * Fetch a specific distribution list by id.
+     * Fetch list of backend messages of a specified type available on the server (not including read reports nor recipients data).
      *
-     * @param id  distribution lists id, from {@link com.appearnetworks.aiq.integrationframework.server.DistributionList#get_id()}
+     * @param messageType  the type of message to fetch
+     * @param withPayload  whether to include the payload
      *
-     * @return the distribution lists, or {@code null} if the distribution lists was not found
+     * @return List of messages, never {@code null}
      */
-    DistributionList fetchDistributionList(String id);
-
-    /**
-     * Create a new distribution list, and let the server choose an id for it.
-     *
-     * @param users  set of user ids
-     *
-     * @return id of the newly created distribution list, never {@code null}
-     */
-    String createDistributionList(Collection<String> users);
-
-    /**
-     * Create a new distribution list, and choose the id yourself.
-     *
-     * @param id     desired id of the distribution list
-     * @param users  set of user ids
-     *
-     * @throws ServerException if the given id is already used
-     */
-    void createDistributionList(String id, Collection<String> users);
-
-    /**
-     * Update a specific distribution list.
-     *
-     * <em>Note:</em> This will affect existing backend messages using this distribution list. Added users will receive the message.
-     * The message will be removed for users removed from this distribution list (unless they are in an other distribution list
-     * of the message, or are direct recipients of the message).
-     *
-     * @param id  distribution lists id, from {@link com.appearnetworks.aiq.integrationframework.server.DistributionList#get_id()}
-     * @param users  new set of user ids
-     *
-     * @return {@code true} if the message existed and was updated, {@code false} if not found
-     */
-    boolean updateDistributionList(String id, Collection<String> users);
-
-    /**
-     * Delete a specific distribution list.
-     *
-     * <em>Note:</em> This will affect existing backend messages using this distribution list.
-     * The message will be removed for users in this distribution list (unless they are in an other distribution list
-     * of the message, or are direct recipients of the message).
-     *
-     * @param id  distribution lists id, from {@link com.appearnetworks.aiq.integrationframework.server.DistributionList#get_id()}
-     *
-     * @return {@code true} if the distribution list and were deleted, {@code false} if not found
-     */
-    boolean deleteDistributionList(String id);
+    List<EnrichedBackendMessage> fetchBackendMessages(String messageType, boolean withPayload);
 
     /**
      * Notify server that there is new data available for some users, but do not send push notifications to devices.

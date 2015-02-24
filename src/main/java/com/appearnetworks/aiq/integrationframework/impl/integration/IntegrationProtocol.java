@@ -1,6 +1,13 @@
 package com.appearnetworks.aiq.integrationframework.impl.integration;
 
-import com.appearnetworks.aiq.integrationframework.integration.*;
+import com.appearnetworks.aiq.integrationframework.integration.Attachment;
+import com.appearnetworks.aiq.integrationframework.integration.COMessage;
+import com.appearnetworks.aiq.integrationframework.integration.COMessageResponse;
+import com.appearnetworks.aiq.integrationframework.integration.DocumentAndAttachmentRevision;
+import com.appearnetworks.aiq.integrationframework.integration.DocumentReference;
+import com.appearnetworks.aiq.integrationframework.integration.IntegrationAdapter;
+import com.appearnetworks.aiq.integrationframework.integration.UnavailableException;
+import com.appearnetworks.aiq.integrationframework.integration.UpdateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -13,7 +20,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +45,7 @@ public class IntegrationProtocol {
     @Autowired
     private IntegrationAdapter integrationAdapter;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @RequestMapping(value = "/datasync", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
@@ -87,24 +100,9 @@ public class IntegrationProtocol {
                                             @RequestBody ObjectNode doc) {
         try {
             HttpHeaders responseHeaders = new HttpHeaders();
-            switch (docType) {
-                case CLIENT_SESSION_DOC_TYPE:
-                    ObjectNode document = integrationAdapter.createClientSession(userId, deviceId, docId, doc);
-                    ObjectNode backendContext;
-                    if (document == null) {
-                        backendContext = mapper.createObjectNode();
-                    } else {
-                        backendContext = document;
-                    }
-                    responseHeaders.setETag(makeETag(1));
-                    return new ResponseEntity<>(backendContext, responseHeaders, HttpStatus.CREATED);
-
-                default:
-                    long revision = integrationAdapter.insertDocument(userId, deviceId, new DocumentReference(docId, docType, 0), doc);
-                    responseHeaders.setETag(makeETag(revision));
-                    return new ResponseEntity<Object>(responseHeaders, HttpStatus.CREATED);
-            }
-
+            long revision = integrationAdapter.insertDocument(userId, deviceId, new DocumentReference(docId, docType, 0), doc);
+            responseHeaders.setETag(makeETag(revision));
+            return new ResponseEntity<Object>(responseHeaders, HttpStatus.CREATED);
         } catch (UpdateException e) {
             return new ResponseEntity<Object>(e.getStatusCode());
         }
@@ -120,17 +118,9 @@ public class IntegrationProtocol {
         try {
             long currentRevision = parseRevision(ifMatch);
             HttpHeaders responseHeaders = new HttpHeaders();
-            switch (docType) {
-                case CLIENT_SESSION_DOC_TYPE:
-                    integrationAdapter.updateClientSession(userId, deviceId, docId, doc);
-                    responseHeaders.setETag(makeETag(currentRevision + 1));
-                    return new ResponseEntity<Object>(responseHeaders, NO_CONTENT);
-
-                default:
-                    long revision = integrationAdapter.updateDocument(userId, deviceId, new DocumentReference(docId, docType, currentRevision), doc);
-                    responseHeaders.setETag(makeETag(revision));
-                    return new ResponseEntity<Object>(responseHeaders, NO_CONTENT);
-            }
+            long revision = integrationAdapter.updateDocument(userId, deviceId, new DocumentReference(docId, docType, currentRevision), doc);
+            responseHeaders.setETag(makeETag(revision));
+            return new ResponseEntity<Object>(responseHeaders, NO_CONTENT);
         } catch (UpdateException e) {
             return new ResponseEntity<Object>(e.getStatusCode());
         }
@@ -144,15 +134,8 @@ public class IntegrationProtocol {
                                             @PathVariable("docId") String docId) {
         try {
             long currentRevision = parseRevision(ifMatch);
-            switch (docType) {
-                case CLIENT_SESSION_DOC_TYPE:
-                    integrationAdapter.removeClientSession(userId, deviceId, docId);
-                    return new ResponseEntity<Object>(NO_CONTENT);
-
-                default:
-                    integrationAdapter.deleteDocument(userId, deviceId, new DocumentReference(docId, docType, currentRevision));
-                    return new ResponseEntity<Object>(NO_CONTENT);
-            }
+            integrationAdapter.deleteDocument(userId, deviceId, new DocumentReference(docId, docType, currentRevision));
+            return new ResponseEntity<Object>(NO_CONTENT);
         } catch (UpdateException e) {
             return new ResponseEntity<Object>(e.getStatusCode());
         }
@@ -223,6 +206,32 @@ public class IntegrationProtocol {
     public ResponseEntity<Object> logout(@RequestBody LogoutRequest request) {
         integrationAdapter.logout(request.getUserId());
         return new ResponseEntity<>(NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/clientsessions", method = RequestMethod.POST, headers = {SLUG}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createClientSession(@RequestHeader(SLUG) String sessionId,
+                                                 @RequestHeader(X_AIQ_USER_ID) String userId,
+                                                 @RequestHeader(X_AIQ_DEVICE_ID) String deviceId,
+                                                 @RequestBody ObjectNode doc) {
+        integrationAdapter.createClientSession(userId, deviceId, sessionId, doc);
+        return new ResponseEntity<Object>(HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/clientsessions/{sessionId:.*}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateClientSession(@PathVariable("sessionId") String sessionId,
+                                                 @RequestHeader(X_AIQ_USER_ID) String userId,
+                                                 @RequestHeader(X_AIQ_DEVICE_ID) String deviceId,
+                                                 @RequestBody ObjectNode doc) {
+        integrationAdapter.updateClientSession(userId, deviceId, sessionId, doc);
+        return new ResponseEntity<Object>(NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/clientsessions/{sessionId:.*}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeClientSession(@PathVariable("sessionId") String sessionId,
+                                                 @RequestHeader(X_AIQ_USER_ID) String userId,
+                                                 @RequestHeader(X_AIQ_DEVICE_ID) String deviceId) {
+        integrationAdapter.removeClientSession(userId, deviceId, sessionId);
+        return new ResponseEntity<Object>(NO_CONTENT);
     }
 
     @RequestMapping(value = "/heartbeat", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

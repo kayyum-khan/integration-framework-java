@@ -24,7 +24,7 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
 
     private static final byte[] ATTACHMENT_DATA = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public Collection<DocumentReference> findByUser(String userId) {
@@ -116,13 +116,12 @@ public class DummyIntegrationAdapter implements IntegrationAdapter {
     }
 
     @Override
-    public ObjectNode createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
+    public void createClientSession(String userId, String deviceId, String sessionId, ObjectNode clientSession) {
         try {
             LOG.info("createClientSession: userId=" + userId + " deviceId=" + deviceId + " sessionId=" + sessionId + "\n" + mapper.writeValueAsString(clientSession));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override

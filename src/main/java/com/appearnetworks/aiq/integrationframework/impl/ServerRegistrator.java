@@ -20,17 +20,24 @@ public class ServerRegistrator {
     @Value("${aiq.integration.url}")
     private String integrationUrl;
 
+    @Value("${aiq.integration.password:}")
+    private String integrationPassword;
+
     @Autowired
     private IntegrationServiceImpl integrationService;
 
-    private SecureRandom random = new SecureRandom();
+    private final SecureRandom random = new SecureRandom();
 
     @PostConstruct
-    public void register() {
+    public void postConstruct() {
         if (!integrationUrl.isEmpty()) {
-            password = generateRandomPassword();
-            integrationService.register(integrationUrl, password);
+            register(integrationUrl);
         }
+    }
+
+    public void register(String url) {
+        password = integrationPassword.isEmpty() ? generateRandomPassword() : integrationPassword;
+        integrationService.register(url, password);
     }
 
     private String generateRandomPassword() {
@@ -38,10 +45,16 @@ public class ServerRegistrator {
     }
 
     @PreDestroy
-    public void unregister() {
+    public void preDestroy() {
         if (!integrationUrl.isEmpty()) {
-            integrationService.unregister();
+            unregister();
+        } else {
+            password = null;
         }
+    }
+
+    public void unregister() {
+        integrationService.unregister();
         password = null;
     }
 

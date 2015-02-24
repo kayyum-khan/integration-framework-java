@@ -127,6 +127,16 @@ public class ServerTest {
         assertNull(user);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void fetchUserValidateNull() {
+        aiqService.fetchUser(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void fetchUserValidateEmpty() {
+        aiqService.fetchUser("");
+    }
+
     @Test
     public void registerAndUnregister() {
         aiqService.register("http://foo.bar/", "secret");
