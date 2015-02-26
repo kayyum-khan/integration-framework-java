@@ -42,7 +42,7 @@ public class BackendMessage {
      * @param timeToLive the duration, in seconds, for which backend message remains active, counted from activeFrom.
      * @param urgent flag true or false if the message is urgent or non-urgent, if true push notifications will be sent to the users.
      * @param _launchable the id of launchable this message belongs to, if {@code null} the message is not assigned to any particular launchable.
-     * @param payload application defined payload of the message, cannot be {@code null}.
+     * @param payload application defined payload of the message, cannot be {@code null}, cannot be larger than 1 MiB
      * @param recipients message recipients, or {@code null} to send message to everyone
      * @param notification the notification to display to user upon receiving the message, can be {@code null}
      */
